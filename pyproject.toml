@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evenhand"
+version = "0.1.0"
+description = "A neutral witness and adjudication layer for AI-agent transactions (prototype)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = ["cryptography>=41"]
+classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: Python :: 3", "Intended Audience :: Developers"]
+
+[tool.setuptools.packages.find]
+include = ["evenhand*"]
