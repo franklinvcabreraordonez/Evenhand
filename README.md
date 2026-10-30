@@ -21,7 +21,12 @@ Dispute opened -> ADJUDICATOR checks signatures, log integrity, limits, intent -
 
 Python 3.10 or newer (tested on 3.12).
 
-```
+python examples/scenarios.py   # every verdict, side by side
+python examples/web_demo.py    # browser demo: click through situations
+
+![Evenhand demo](docs/demo.png)
+
+
 python -m pip install -e .
 python examples/quickstart.py
 python -m unittest discover -s tests
