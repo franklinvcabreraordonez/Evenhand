@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evenhand: a neutral witness for AI agents that spend money</title>
+  <meta name="description" content="Evenhand is an open-source prototype that records what an AI agent did, checks it against what the user allowed, and returns a verdict with an evidence packet.">
+  <link rel="canonical" href="https://franklinvcabreraordonez.github.io/Evenhand/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Evenhand: a neutral witness for AI agents that spend money">
+  <meta property="og:description" content="Open-source prototype: records what an AI agent did and checks it against what the user allowed.">
+  <meta property="og:url" content="https://franklinvcabreraordonez.github.io/Evenhand/">
+  <meta property="og:image" content="https://franklinvcabreraordonez.github.io/Evenhand/assets/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0F1B24">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230F1B24'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' font-family='Georgia,serif' font-weight='700' fill='%2363C4D1'%3EE%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="top">
+    <div class="wrap nav">
+      <span class="wordmark">Evenhand</span>
+      <nav aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#status">Status</a>
+        <a href="#talk">Talk to us</a>
+        <a href="https://github.com/franklinvcabreraordonez/Evenhand">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Open-source prototype</p>
+        <h1>A neutral witness for AI agents that spend money.</h1>
+        <p class="lede">When an agent buys the wrong thing, nobody can prove what the user allowed. Evenhand records what the agent actually did, checks it against the user’s signed permission, and gives merchants, banks and insurers a verdict they can act on.</p>
+        <p>
+          <a class="btn primary" href="https://github.com/franklinvcabreraordonez/Evenhand#quickstart">See it run</a>
+          <a class="btn line" href="#talk">Talk to us</a>
+        </p>
+      </div>
+    </div>
+
+    <section id="problem">
+      <div class="wrap">
+        <h2>Agent purchases have no neutral record.</h2>
+        <p class="sub">As agents start to spend money for people, disputes get hard to settle, and every party’s evidence is partial.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>The log belongs to the agent</h3>
+            <p>The record of what happened is often signed by the agent itself, so it proves little to anyone else.</p>
+          </div>
+          <div class="card">
+            <h3>Merchants carry the loss</h3>
+            <p>Merchants absorb the cost by default, and banks respond by restricting outside agents altogether.</p>
+          </div>
+          <div class="card">
+            <h3>Nobody has said who pays</h3>
+            <p>Card networks cover cards only and have not said who is responsible when an agent overreaches.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="how">
+      <div class="wrap">
+        <h2>How Evenhand works</h2>
+        <p class="sub">Three parts, each independently checkable.</p>
+        <div class="grid">
+          <div class="card">
+            <span class="num">1</span>
+            <h3>The user signs a mandate</h3>
+            <p>What the agent may buy, from which merchants, for how much, and until when.</p>
+          </div>
+          <div class="card">
+            <span class="num">2</span>
+            <h3>A witness records the actions</h3>
+            <p>Receipts are signed outside the agent’s control and chained together, so edits, deletions and reordering show up.</p>
+          </div>
+          <div class="card">
+            <span class="num">3</span>
+            <h3>Evenhand returns a verdict</h3>
+            <p>Every check that ran is listed in an evidence packet a merchant, bank or insurer can verify offline.</p>
+          </div>
+        </div>
+        <ul class="pills" aria-label="Possible verdicts">
+          <li>within_mandate</li>
+          <li>exceeded_mandate</li>
+          <li>ambiguous_intent</li>
+          <li>evidence_insufficient</li>
+          <li>evidence_invalid</li>
+        </ul>
+        <figure>
+          <img src="demo.png" alt="Evenhand browser demo: a receipt edited after the fact fails signature verification." loading="lazy">
+          <figcaption>The browser demo that ships in the repository. Here a receipt was edited after signing, so its signature no longer verifies.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="who">
+      <div class="wrap">
+        <h2>Who it is for</h2>
+        <p class="sub">Evenhand is built for the people who have to settle these disputes.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>Teams that let agents spend</h3>
+            <p>Agent wallets, card programs and shopping agents that need evidence a counterparty will accept.</p>
+          </div>
+          <div class="card">
+            <h3>Merchants and issuers</h3>
+            <p>Risk and dispute teams that need to tell a valid agent purchase from an unauthorized one.</p>
+          </div>
+          <div class="card">
+            <h3>Insurers and auditors</h3>
+            <p>Anyone pricing or reviewing agent risk who needs a verifiable record instead of a screenshot.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="status">
+      <div class="wrap">
+        <h2>Where things stand</h2>
+        <div class="status">
+          <p><strong>Version 0.1, an open-source prototype.</strong> It runs on synthetic data, has not been audited, and is not for real money or customer data.</p>
+          <p>The mandate format is a simplified one. Adapters for open agent-payment standards (Verifiable Intent and AP2) are planned and not yet built, and there is no hosted service yet.</p>
+          <p>The design commitments, including no custody of funds and no consumer scoring, are in the neutrality charter.</p>
+        </div>
+        <p class="links">
+          <a href="https://github.com/franklinvcabreraordonez/Evenhand">Code on GitHub</a>
+          <a href="https://github.com/franklinvcabreraordonez/Evenhand/blob/main/docs/SPEC.md">Evidence format</a>
+          <a href="https://github.com/franklinvcabreraordonez/Evenhand/blob/main/docs/NEUTRALITY.md">Neutrality charter</a>
+          <a href="https://github.com/franklinvcabreraordonez/Evenhand/blob/main/docs/BENCHMARK.md">Synthetic benchmark</a>
+        </p>
+      </div>
+    </section>
+
+    <section id="talk">
+      <div class="wrap">
+        <h2>Talk to us</h2>
+        <p class="sub">I am looking for 20-minute conversations with people who run agent payments, card programs, risk and disputes. No pitch. I want to learn what breaks today and what you would need to trust a neutral record. If you would consider being a design partner, say so.</p>
+        <p>
+          <a class="btn solid" href="www.linkedin.com/in/franklin-cabrera-ordonez-27a7432a7">Message Franklin on LinkedIn</a>
+          <a class="btn outline" href="https://github.com/franklinvcabreraordonez/Evenhand/issues/new?title=Conversation%20request">Open a GitHub issue</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Evenhand is an early-stage open-source project built by Franklin Cabrera Ordonez. Licensed under Apache-2.0. © 2026 Evenhand contributors.</div>
+  </footer>
+
+  <script>
+    // Hides the LinkedIn button until you replace www.linkedin.com/in/franklin-cabrera-ordonez-27a7432a7 (above) with your real profile address.
+    document.querySelectorAll('a[href="www.linkedin.com/in/franklin-cabrera-ordonez-27a7432a7"]').forEach(function (a) { a.hidden = true; });
+  </script>
+</body>
+</html>
