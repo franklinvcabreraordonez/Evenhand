@@ -23,6 +23,7 @@
     <div class="wrap nav">
       <span class="wordmark">Evenhand</span>
       <nav aria-label="Primary">
+        <a href="#demo">Live demo</a>
         <a href="#how">How it works</a>
         <a href="#status">Status</a>
         <a href="#talk">Talk to us</a>
@@ -38,11 +39,82 @@
         <h1>A neutral witness for AI agents that spend money.</h1>
         <p class="lede">When an agent buys the wrong thing, nobody can prove what the user allowed. Evenhand records what the agent actually did, checks it against the user’s signed permission, and gives merchants, banks and insurers a verdict they can act on.</p>
         <p>
-          <a class="btn primary" href="https://github.com/franklinvcabreraordonez/Evenhand#quickstart">See it run</a>
+          <a class="btn primary" href="#demo">Try the live demo</a>
           <a class="btn line" href="#talk">Talk to us</a>
         </p>
       </div>
     </div>
+
+    <section id="demo">
+      <div class="wrap">
+        <h2>Try it: watch Evenhand decide</h2>
+        <p class="sub">Pick a situation. The engine records what the agent did, checks it against what the user signed, and returns a verdict. It runs in your browser on made-up data. This is a JavaScript port of the Python engine in the repository, which remains the reference implementation.</p>
+        <div class="demo">
+          <div class="demo-controls">
+            <div class="panel">
+              <h3>Pick a situation</h3>
+              <div id="ev-presets" class="presets"></div>
+            </div>
+            <div class="panel">
+              <h3>Or build your own</h3>
+              <h4>1. What the user signs</h4>
+              <label for="ev-f-merchants">Allowed merchants (comma separated)</label>
+              <input type="text" id="ev-f-merchants">
+              <label for="ev-f-cap">Limit per purchase ($)</label>
+              <input type="number" id="ev-f-cap" min="0">
+              <label for="ev-f-total">Limit in total ($)</label>
+              <input type="number" id="ev-f-total" min="0">
+              <label for="ev-f-intent">What the user asked for</label>
+              <input type="text" id="ev-f-intent">
+              <h4>2. What the agent does</h4>
+              <label for="ev-a-merchant">Merchant</label>
+              <input type="text" id="ev-a-merchant">
+              <label for="ev-a-amount">Amount ($)</label>
+              <input type="number" id="ev-a-amount" min="0">
+              <label for="ev-a-desc">Item bought</label>
+              <input type="text" id="ev-a-desc">
+              <h4>3. What goes wrong</h4>
+              <label class="chk"><input type="checkbox" id="ev-o-revoke">The user revoked the mandate before the purchase</label>
+              <label class="chk"><input type="checkbox" id="ev-o-edit">Someone edits the receipt afterwards</label>
+              <label class="chk"><input type="checkbox" id="ev-o-delete">An earlier receipt is deleted from the log</label>
+              <label class="chk"><input type="checkbox" id="ev-o-omit">The disputed receipt is never supplied</label>
+              <label class="chk"><input type="checkbox" id="ev-o-forge">The mandate was signed by someone else</label>
+              <button id="ev-run" class="btn solid" type="button">Run it</button>
+            </div>
+          </div>
+          <div class="demo-results">
+            <div class="panel">
+              <h3>1. The user signs a mandate</h3>
+              <p class="muted">The permission slip: what the agent may buy, where, and how much.</p>
+              <div id="ev-out-mandate"></div>
+            </div>
+            <div class="panel">
+              <h3>2. The agent acts and a neutral witness records it</h3>
+              <p class="muted">Each receipt is signed and carries the fingerprint of the one before it, so editing, deleting or reordering any receipt is detectable.</p>
+              <div id="ev-out-receipts"></div>
+            </div>
+            <div class="panel">
+              <h3>3. A dispute arrives: the verdict</h3>
+              <div id="ev-out-verdict" aria-live="polite"></div>
+            </div>
+            <div class="panel">
+              <h3>4. Every check Evenhand ran</h3>
+              <div id="ev-out-checks"></div>
+            </div>
+            <div class="panel">
+              <h3>5. The evidence packet a merchant or bank would receive</h3>
+              <details>
+                <summary>Show the machine-readable packet</summary>
+                <pre id="ev-out-packet"></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+        <p class="muted" id="ev-alg"></p>
+        <p class="muted">Want the real thing? <a href="https://github.com/franklinvcabreraordonez/Evenhand#quickstart">Run the Python engine</a> from the repository.</p>
+        <noscript><p class="muted">The live demo needs JavaScript. Here is a screenshot of it instead.</p><img src="demo.png" alt="Evenhand demo: a receipt edited after the fact fails signature verification." style="max-width:100%;height:auto"></noscript>
+      </div>
+    </section>
 
     <section id="problem">
       <div class="wrap">
@@ -93,10 +165,6 @@
           <li>evidence_insufficient</li>
           <li>evidence_invalid</li>
         </ul>
-        <figure>
-          <img src="demo.png" alt="Evenhand browser demo: a receipt edited after the fact fails signature verification." loading="lazy">
-          <figcaption>The browser demo that ships in the repository. Here a receipt was edited after signing, so its signature no longer verifies.</figcaption>
-        </figure>
       </div>
     </section>
 
@@ -154,6 +222,7 @@
     <div class="wrap">Evenhand is an early-stage open-source project built by Franklin Cabrera Ordonez. Licensed under Apache-2.0. © 2026 Evenhand contributors.</div>
   </footer>
 
+  <script src="demo.js" defer></script>
   <script>
     // Hides the LinkedIn button until you replace www.linkedin.com/in/franklin-cabrera-ordonez-27a7432a7 (above) with your real profile address.
     document.querySelectorAll('a[href="www.linkedin.com/in/franklin-cabrera-ordonez-27a7432a7"]').forEach(function (a) { a.hidden = true; });
