@@ -47,7 +47,7 @@ gw = Gateway(signed, expected_principal_pub=principal.public_hex)
 def buy(merchant, amount, description): ...
 ```
 
-Full walkthrough, including an HTTP witness for agents in any language: [docs/QUICKSTART.md](docs/QUICKSTART.md).
+Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 ## Verdicts
 
