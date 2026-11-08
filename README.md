@@ -36,6 +36,19 @@ python -m unittest discover -s tests
 
 The quickstart signs a mandate, records two agent purchases, issues verdicts, shows a tampered receipt being rejected, and prints an evidence packet.
 
+### Witness your agent in 30 minutes
+
+```python
+from evenhand import Gateway, quick_mandate
+signed, principal = quick_mandate(intent="buy running shoes under $120", merchants=["stridemart"], max_per_txn=120)
+gw = Gateway(signed, expected_principal_pub=principal.public_hex)
+
+@gw.tool                      # every successful call is signed and chained
+def buy(merchant, amount, description): ...
+```
+
+Full walkthrough, including an HTTP witness for agents in any language: [docs/QUICKSTART.md](docs/QUICKSTART.md).
+
 ## Verdicts
 
 `within_mandate`, `exceeded_mandate`, `ambiguous_intent` (goes to a human), `evidence_insufficient`, `evidence_invalid` (tampered, forged or unverifiable).
