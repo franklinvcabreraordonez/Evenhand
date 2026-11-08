@@ -57,7 +57,7 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 1. **Evidence, not opinion.** Every verdict lists the checks behind it.
 2. **The witness sits outside the agent's trust boundary.**
-3. **The verifier is open and runs offline.**
+3. 3. **The verifier is open and runs offline.** Pin the user's and the witness's public keys and you do not have to trust us. See [docs/TRUST-MODEL.md](docs/TRUST-MODEL.md).
 4. **Interoperate with open standards** (Verifiable Intent and AP2, now under the FIDO Alliance) instead of inventing a new mandate format. Adapters are planned and **not yet built**.
 5. **No custody of funds, no consumer scoring, humans decide adverse consumer outcomes.** See [docs/NEUTRALITY.md](docs/NEUTRALITY.md).
 
@@ -65,7 +65,7 @@ Full walkthrough: [docs/QUICKSTART.md](docs/QUICKSTART.md).
 
 - `evenhand/`: the library (mandates, witness receipts, adjudicator, evidence packets, a synthetic dispute simulator).
 - `examples/quickstart.py`: a runnable walkthrough.
-- `docs/SPEC.md`: the evidence format as implemented. `docs/NEUTRALITY.md`: the neutrality charter. `docs/BENCHMARK.md`: the synthetic benchmark.
+- `docs/SPEC.md`: the evidence format as implemented. `docs/NEUTRALITY.md`: the neutrality charter. `docs/BENCHMARK.md`: the synthetic benchmark. `docs/TRUST-MODEL.md`: how to verify a record without trusting us.
 - `tests/`: unit tests for the signing, chain and adjudication logic.
 
 ## Limitations, stated plainly
