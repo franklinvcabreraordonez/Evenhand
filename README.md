@@ -4,6 +4,8 @@ A neutral witness for AI agents that spend money.
 
 > **Status: v0.1 prototype. Not production software. Tested only on synthetic data.**
 
+![Evenhand demo: a receipt edited after the fact fails verification](docs/demo.png)
+
 ## The problem
 
 When an AI agent buys something or acts on an account and the outcome is disputed, nobody can prove what the user actually allowed. The record is often signed by the agent itself. Merchants absorb the loss by default, banks restrict outside agents, and payment networks cover cards only and have not said who pays when an agent overreaches.
