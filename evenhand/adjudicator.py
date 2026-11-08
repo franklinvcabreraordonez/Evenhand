@@ -64,7 +64,7 @@ def adjudicate(
     hi: float = 0.75,
     lo: float = 0.25,
 ) -> Verdict:
-    matcher = intent_matcher or HeadNounIntentMatcher()
+    matcher = intent_matcher or RobustIntentMatcher()
     m = signed_mandate.mandate
     c = m.constraints
     checks: List[Check] = []
