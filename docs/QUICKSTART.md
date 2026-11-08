@@ -39,4 +39,8 @@ Run `python examples/witness_in_30_minutes.py` to see this work, including what 
 - A witness running beside your code is a stand-in. The point of the design is a witness outside the agent's trust boundary, such as a gateway or proxy. That hosted witness does not exist yet.
 - Intent matching is a keyword baseline and misjudges some valid purchases with messy product names.
 - Verifiable Intent and AP2 adapters are not built.
-- Receipts live in memory and are lost when the process stops, unless you export them.
+- Receipts live in memory and are lost when the process stops, unless you export them.'
+
+## Witness over HTTP (any language)
+
+Run `python -m evenhand.server --dev`, then send each purchase your agent makes to `POST /v1/receipts`. A walkthrough with curl, Node.js and PowerShell is in [HTTP-API.md](HTTP-API.md). The development helpers sign mandates with throwaway keys. For anything real, start the server with `--principal-key` and the user's public key.
