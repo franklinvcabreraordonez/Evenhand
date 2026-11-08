@@ -79,7 +79,13 @@ def run_case(cfg):
     chain = list(witness.chain(mandate.mandate_id))
     if o.get("edit_receipt"):
         i = target.seq
-        chain[i] = dataclasses.replace(chain[i], action=dataclasses.replace(chain[i].action, merchant_id=legit))
+        was = chain[i].action
+        # hide the wrong merchant; if the merchant was already fine, shave the amount instead, so an edit always changes something
+        nxt = cap if was.amount > cap else max(1.0, was.amount - 10)
+        if nxt == was.amount:
+            nxt += 1
+        edit = {"merchant_id": legit} if was.merchant_id != legit else {"amount": nxt}
+        chain[i] = dataclasses.replace(chain[i], action=dataclasses.replace(was, **edit))
     if o.get("delete_earlier"):
         chain = chain[1:]
     if o.get("omit_receipt"):

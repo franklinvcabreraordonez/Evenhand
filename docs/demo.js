@@ -380,7 +380,12 @@
     let chain = witness.chain(mandate.mandate_id);
     if (o.edit_receipt) {
       const i = target.seq;
-      chain[i] = Object.assign({}, chain[i], { action: Object.assign({}, chain[i].action, { merchant_id: legit }) });
+      const was = chain[i].action;
+      // Hide the wrong merchant; if the merchant was already fine, shave the amount instead, so an edit always changes something.
+      let next = was.amount > cap ? cap : Math.max(1, was.amount - 10);
+      if (next === was.amount) next += 1;
+      const edit = was.merchant_id !== legit ? { merchant_id: legit } : { amount: next };
+      chain[i] = Object.assign({}, chain[i], { action: Object.assign({}, was, edit) });
     }
     if (o.delete_earlier) chain = chain.slice(1);
     if (o.omit_receipt) chain = chain.slice(0, -1);
@@ -671,11 +676,11 @@
         (v.intent_score !== null ? `<p class="muted">Intent match score: ${v.intent_score.toFixed(2)} (0.75 or above matches, 0.25 or below does not)</p>` : '');
       $('ev-out-checks').innerHTML = `<div class="tw"><table><thead><tr><th>Result</th><th>Check</th><th>Detail</th></tr></thead><tbody>${d.checks.map((c) => `<tr><td class="${c.passed ? 'ok' : 'bad'}">${c.passed ? 'Pass' : 'Fail'}</td><td>${esc(c.name.replace(/_/g, ' '))}</td><td>${esc(c.detail)}</td></tr>`).join('')}</tbody></table></div>`;
       $('ev-out-packet').textContent = JSON.stringify(d.packet, null, 2);
-      lastPacket = d.packet;.textContent = JSON.stringify(d.packet, null, 2);
+      lastPacket = d.packet;
     };
 
     let runId = 0;
-    let lastPacket = null;;
+    let lastPacket = null;
     const go = async () => {
       const mine = ++runId;
       try {
@@ -698,6 +703,7 @@
         $('ev-presets').appendChild(b);
       });
       $('ev-run').addEventListener('click', () => { clearActive(); go(); });
+      for (const id in OPTS) $(id).addEventListener('change', () => { clearActive(); go(); });
       const dl = $('ev-download');
       if (dl) {
         dl.addEventListener('click', () => {
@@ -707,7 +713,7 @@
             const blob = new Blob([makePdf(lastPacket)], { type: 'application/pdf' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'evenhand-packet-' + lastPacket.case_id + '.pdf';
+            a.download = 'evenhand-packet-' + lastPacket.verdict.replace(/_/g, '-') + '.pdf';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -717,7 +723,7 @@
             if (note) note.textContent = 'Could not build the PDF: ' + err.message;
           }
         });
-      }Listener('click', () => { clearActive(); go(); });
+      }
       $('ev-presets').firstChild.click();
     });
   }
