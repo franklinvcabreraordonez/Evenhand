@@ -6,3 +6,4 @@ dist/
 .venv/
 panel/
 ANSWER-KEY*
+out/
