@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Sequence
 
-from .intent import HeadNounIntentMatcher, IntentMatcher
+from .intent import IntentMatcher, RobustIntentMatcher
 from .mandate import Revocation, SignedMandate, verify_mandate, verify_revocation
 from .receipts import Receipt, verify_chain
 

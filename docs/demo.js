@@ -158,38 +158,86 @@
   }
 
   /* ---------- intent matching ---------- */
+    /* ---------- intent matching ---------- */
   const STOP = new Set(['a', 'an', 'the', 'for', 'my', 'me', 'to', 'of', 'and', 'buy', 'get', 'some', 'new', 'under',
     'around', 'than', 'less', 'cheap', 'affordable', 'best', 'good', 'please', 'with', 'in', 'on']);
-  const SYN = { sneaker: 'shoe', trainer: 'shoe', notebook: 'laptop', earbud: 'headphone' };
+  const GENERIC = new Set(['computer', 'device', 'product', 'item', 'set', 'pair', 'kit', 'pack', 'bundle', 'unit']);
+  const WORD_SYN = {
+    sneaker: 'shoe', trainer: 'shoe', notebook: 'laptop', earbud: 'headphone', headset: 'headphone',
+    smartphone: 'phone', cellphone: 'phone', mobile: 'phone',
+  };
+  // Real retail synonyms. Deliberately small and explicit; a model or a person handles the rest.
+  const PHRASE_SYN = {
+    'ground coffee': ['coffee', 'bean'], 'exercise mat': ['yoga', 'mat'],
+    'desk chair': ['office', 'chair'], 'computer chair': ['office', 'chair'],
+  };
   const PARSE = /^buy ([a-z0-9 \-]+?) under \$(\d+(?:\.\d+)?)$/i;
+  const SPLIT = /\s*(?:\+|&|,|;|\band\b|\bwith\b|\bplus\b)\s*/;
+  const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 
-  function tokens(text) {
+  function phrases(toks) {
     const out = [];
-    for (let w of (text.toLowerCase().match(/[a-z]+/g) || [])) {
-      if (STOP.has(w)) continue;
-      if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) w = w.slice(0, -1);
-      out.push(Object.prototype.hasOwnProperty.call(SYN, w) ? SYN[w] : w);
+    for (let i = 0; i < toks.length;) {
+      const key = toks.slice(i, i + 2).join(' ');
+      if (i + 1 < toks.length && has(PHRASE_SYN, key)) { out.push(...PHRASE_SYN[key]); i += 2; }
+      else { out.push(toks[i]); i += 1; }
     }
     return out;
   }
 
+  function normalize(text) {
+    let toks = [];
+    for (let w of (text.toLowerCase().match(/[a-z]+/g) || [])) {
+      if (STOP.has(w)) continue;
+      if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) w = w.slice(0, -1);
+      toks.push(has(WORD_SYN, w) ? WORD_SYN[w] : w);
+    }
+    toks = phrases(toks);
+    if (toks.length > 1) { // "notebook computer" is a laptop
+      const kept = toks.filter((t) => !GENERIC.has(t));
+      if (kept.length) toks = kept;
+    }
+    return toks;
+  }
+
+  function withinOneEdit(a, b) {
+    if (a === b) return true;
+    if (Math.abs(a.length - b.length) > 1) return false;
+    if (a.length === b.length) {
+      const diff = [];
+      for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) diff.push(i);
+      if (diff.length === 1) return true;
+      return diff.length === 2 && diff[1] === diff[0] + 1 && a[diff[0]] === b[diff[1]] && a[diff[1]] === b[diff[0]];
+    }
+    const short = a.length < b.length ? a : b;
+    const long = a.length < b.length ? b : a;
+    for (let i = 0; i < long.length; i++) if (long.slice(0, i) + long.slice(i + 1) === short) return true;
+    return false;
+  }
+  // Exact, or one typo apart for words of five letters or more. Near: four letters or more, enough to ask a person.
+  const sameWord = (a, b) => a === b || (Math.min(a.length, b.length) >= 5 && withinOneEdit(a, b));
+  const nearWord = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && withinOneEdit(a, b));
+
   function intentScore(intent, cart) {
     const parsed = PARSE.exec(intent.trim());
     if (!parsed || !cart.length) return 0.5; // cannot parse: escalate, do not guess
-    const want = tokens(parsed[1]);
+    const want = normalize(parsed[1]);
     if (!want.length) return 0.5;
-    const wantSet = new Set(want);
-    let best = 0.0;
+    const wanted = Array.from(new Set(want));
+    let best = 0, near = 0;
     for (const it of cart) {
-      const have = tokens(it.desc);
-      if (!have.length) continue;
-      const haveSet = new Set(have);
-      let common = 0;
-      wantSet.forEach((t) => { if (haveSet.has(t)) common++; });
-      let cov = common / wantSet.size;
-      if (want[want.length - 1] !== have[have.length - 1]) cov = Math.min(cov, 0.2); // "laptop bag" is not a "laptop"
-      best = Math.max(best, cov);
+      for (const segment of it.desc.toLowerCase().split(SPLIT)) {
+        const have = normalize(segment);
+        if (!have.length) continue;
+        for (const pair of [[sameWord, true], [nearWord, false]]) {
+          const same = pair[0];
+          let cov = wanted.filter((w) => have.some((h) => same(w, h))).length / wanted.length;
+          if (!same(want[want.length - 1], have[have.length - 1])) cov = Math.min(cov, 0.2); // "laptop bag" is not a "laptop"
+          if (pair[1]) best = Math.max(best, cov); else near = Math.max(near, cov);
+        }
+      }
     }
+    if (best <= 0.25 && near >= 0.5) return 0.5; // looks like a typo of the right product: ask a person
     return best;
   }
 

@@ -199,19 +199,26 @@ class Gateway:
 
 
 def verify_bundle(bundle: dict, *, expected_principal_pub: Optional[str] = None,
-                  expected_head: Optional[str] = None) -> dict:
-    """Offline check of an exported bundle. Needs no server and no trust in whoever sent it.
+                  expected_witness_pub: Optional[str] = None, expected_head: Optional[str] = None) -> dict:
+    """Offline check of an exported bundle. Needs no server.
 
-    Pass expected_head (a checkpoint the witness published) to also catch truncation at the end."""
+    Without the expected_* arguments this proves only that the bundle is internally consistent: someone
+    could build a fresh, self-consistent chain under their own witness key. To trust a bundle, pin the keys
+    you obtained from somewhere else: the user's key (expected_principal_pub) and the witness's key
+    (expected_witness_pub). Pass expected_head, a checkpoint the witness published, to also catch
+    truncation at the end of a chain. The result includes the keys the bundle claims, so you can compare."""
     try:
         sm, receipts, witness_pub, _revocations, stated_head = bundle_from_dict(bundle)
     except ValueError as exc:
-        return {"ok": False, "problems": [f"malformed bundle: {exc}"], "head": None, "receipts": 0}
+        return {"ok": False, "problems": [f"malformed bundle: {exc}"], "head": None, "receipts": 0,
+                "principal_pub": None, "witness_pub": None}
     problems: List[str] = []
     if not verify_mandate(sm):
         problems.append("mandate signature does not verify")
     if expected_principal_pub is not None and expected_principal_pub != sm.principal_pub:
         problems.append("mandate was signed by an unexpected key")
+    if expected_witness_pub is not None and expected_witness_pub != witness_pub:
+        problems.append("receipts were signed by an unexpected witness key")
     report = verify_chain(receipts, witness_pub, sm.mandate.mandate_id, expected_head)
     problems += report.problems
     for raw, r in zip(bundle["receipts"], receipts):
@@ -219,4 +226,5 @@ def verify_bundle(bundle: dict, *, expected_principal_pub: Optional[str] = None,
             problems.append(f"receipt {r.seq}: stated hash does not match its contents")
     if stated_head is not None and stated_head != report.head:
         problems.append("stated head does not match the last receipt")
-    return {"ok": not problems, "problems": problems, "head": report.head, "receipts": len(receipts)}
+    return {"ok": not problems, "problems": problems, "head": report.head, "receipts": len(receipts),
+            "principal_pub": sm.principal_pub, "witness_pub": witness_pub}
