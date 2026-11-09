@@ -11,3 +11,6 @@ witness-data/
 witness.key
 node_modules/
 dist/
+
+fix_*.py
+patch_*.py
