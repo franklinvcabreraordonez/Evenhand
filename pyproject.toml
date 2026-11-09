@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "evenhand"
-version = "0.1.0"
+version = "0.2.0"
 description = "A neutral witness and adjudication layer for AI-agent transactions (prototype)"
 readme = "README.md"
 requires-python = ">=3.10"
