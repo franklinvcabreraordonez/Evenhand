@@ -85,3 +85,5 @@ Verifiable Intent and AP2 adapters, a hosted witness with checkpoints, an MCP an
 Parts of this code were drafted with AI assistance (Claude) under the maintainer's direction and are covered by tests. Contributions are welcome: see [CONTRIBUTING.md](CONTRIBUTING.md). Report security issues as described in [SECURITY.md](SECURITY.md).
 
 Licensed under the Apache License 2.0. See [LICENSE](LICENSE).
+
+MCP witness proxy: wrap any MCP tool server so every purchase an agent makes is witnessed. See [docs/MCP-PROXY.md](docs/MCP-PROXY.md).

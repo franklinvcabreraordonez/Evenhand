@@ -14,3 +14,6 @@ classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: P
 
 [tool.setuptools.packages.find]
 include = ["evenhand*"]
+
+[project.scripts]
+evenhand-mcp = "evenhand.mcp.cli:entry"
