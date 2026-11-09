@@ -195,6 +195,18 @@ class EndingTests(StdioBase):
         self.assertLess(time.monotonic() - started, 10)
         self.assertNotEqual(h.code, None)
 
+    def test_a_server_that_leaves_a_child_holding_its_pipes_does_not_hang_the_proxy(self):
+        # npx starts the real server as a grandchild: stopping only the first program must not leave the proxy waiting on the second
+        wrapper = [sys.executable, "-c", "import subprocess, sys; p = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)']); p.wait()"]
+        from evenhand.mcp import stdio
+        original = stdio._SHUTDOWN_GRACE
+        stdio._SHUTDOWN_GRACE = 0.3
+        self.addCleanup(setattr, stdio, "_SHUTDOWN_GRACE", original)
+        h = self.proxy(wrapper)
+        started = time.monotonic()
+        h.finish()
+        self.assertLess(time.monotonic() - started, 10)
+
 
 if __name__ == "__main__":
     unittest.main()

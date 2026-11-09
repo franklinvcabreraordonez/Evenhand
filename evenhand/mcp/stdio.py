@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -13,6 +14,21 @@ from . import rpc
 from .core import Engine
 
 _SHUTDOWN_GRACE = 5.0
+_OWN_GROUP = {"start_new_session": True} if os.name != "nt" else {}  # so that everything the server starts can be stopped with it
+
+
+def _stop(proc: "subprocess.Popen[bytes]", force: bool) -> None:
+    """Stops the server and everything it started. npx, for one, runs the real server as a grandchild of its own."""
+    try:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(proc.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
+        else:
+            os.killpg(proc.pid, signal.SIGKILL if force else signal.SIGTERM)
+    except (OSError, subprocess.SubprocessError):
+        if force:
+            proc.kill()
+        else:
+            proc.terminate()
 
 
 def resolve(argv: List[str]) -> List[str]:
@@ -29,7 +45,7 @@ def run_stdio(engine: Engine, argv: List[str], *, env: Optional[Dict[str, str]] 
     client_err = stderr if stderr is not None else sys.stderr.buffer
     merged_env = {**os.environ, **(env or {})}
     try:
-        proc = subprocess.Popen(resolve(argv), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=merged_env, cwd=cwd)
+        proc = subprocess.Popen(resolve(argv), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=merged_env, cwd=cwd, **_OWN_GROUP)
     except OSError as exc:
         engine.log(f"cannot start {argv[0]}: {exc}")
         return 127
@@ -104,19 +120,25 @@ def run_stdio(engine: Engine, argv: List[str], *, env: Optional[Dict[str, str]] 
                     try:
                         code = proc.wait(timeout=_SHUTDOWN_GRACE)
                     except subprocess.TimeoutExpired:
-                        proc.terminate()
+                        _stop(proc, False)
                         try:
                             code = proc.wait(timeout=3)
                         except subprocess.TimeoutExpired:
-                            proc.kill()
+                            _stop(proc, True)
                             code = proc.wait()
                     break
     except KeyboardInterrupt:
-        proc.terminate()
-        code = proc.wait()
+        _stop(proc, False)
+        try:
+            code = proc.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            _stop(proc, True)
+            code = proc.wait()
     threads[1].join(timeout=3)  # let the last answers through
     threads[2].join(timeout=1)
-    for pipe in (proc.stdout, proc.stderr):
+    for pipe, reader in ((proc.stdout, threads[1]), (proc.stderr, threads[2])):
+        if reader.is_alive():
+            continue  # still waiting on a read: closing the pipe from here could wait on it forever
         try:
             pipe.close()
         except (OSError, ValueError):
