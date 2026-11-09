@@ -9,3 +9,5 @@ ANSWER-KEY*
 out/
 witness-data/
 witness.key
+node_modules/
+dist/
